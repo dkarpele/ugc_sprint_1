@@ -1,0 +1,40 @@
+@startuml
+==Create and send movie viewed_frame record==
+
+Client -> UGC: Post /send-movie-time
+
+activate UGC
+UGC -> Kafka:  Save to topic `views`\npartition user_id+movie_id
+
+activate Kafka
+Etl --> Kafka: Init Consumer for Redis
+Etl --> Kafka: Init Consumer for ClickHouse
+Kafka -> Etl: Send data to Etl
+deactivate Kafka
+
+activate Etl
+
+
+==Load data to ClickHouse==
+
+Etl -> ClickHouse: Load data to storage
+activate ClickHouse
+deactivate ClickHouse
+
+
+==User gets viewed_frame record==
+
+Etl -> Redis: Write data (key-value)
+
+activate Redis
+Client -> UGC: Get /get-movie-time (key)
+UGC -> Redis: Get viewed_frame by key
+Redis -> UGC: Receive viewed_frame by key
+deactivate Redis
+
+UGC -> Client: Receive viewed_frame
+deactivate UGC
+
+deactivate Etl
+
+@enduml

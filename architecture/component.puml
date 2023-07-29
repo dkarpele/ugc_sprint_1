@@ -1,0 +1,40 @@
+@startuml
+skinparam componentStyle uml2
+actor Client
+
+component Auth_api
+component Content_api
+component UGC
+component Django
+component ETL_Kafka_CH
+component ETL_Postgres_ES
+
+database Elasticsearch
+database PostgreSQL_auth
+database PostgreSQL_content
+database RedisCache
+database RedisToken
+database RedisFrame
+database Kafka
+database ClickHouse
+
+
+Client -right-> Auth_api: Authorization \n Authentification
+Client -down-> Content_api: Movies \n Content
+Client -left-> UGC: Load user generated content
+Auth_api -up-> RedisToken: Storage of \n invalid tokens
+Auth_api -right-> PostgreSQL_auth: Store users, roles
+Content_api -right-> RedisCache: Cache users search
+UGC -left-> Kafka: Event - movie viewed_frame
+UGC -up-> RedisFrame: Movie timeframe in\nCache
+
+Django -> PostgreSQL_content: Manage Film\nContent
+PostgreSQL_content -> ETL_Postgres_ES: ETL from\nContent DB to ES
+ETL_Postgres_ES -> Elasticsearch: ETL from\nContent DB to ES
+
+Content_api --> Elasticsearch: Receive data from ES
+
+Kafka --> ETL_Kafka_CH: ETL from\nKafka to CH
+ETL_Kafka_CH -> ClickHouse: ETL from Kafka to CH
+
+@enduml
