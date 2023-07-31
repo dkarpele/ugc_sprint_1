@@ -1,10 +1,10 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from models.model import Model
 
 
-class View(BaseModel):
+class View(Model):
     user_id: UUID
     movie_id: UUID
     begin_time: datetime

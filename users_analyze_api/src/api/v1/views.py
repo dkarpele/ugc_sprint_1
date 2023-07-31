@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
-from fastapi.encoders import jsonable_encoder
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from models.views import View
 from services.database import KafkaDep
@@ -16,5 +15,6 @@ router = APIRouter()
              description="создание записи о просмотре",
              response_description="user_id, movie_id, begin_time, end_time")
 async def create_view(view: View, kafka: KafkaDep) -> View:
-    kafka.create_post(view.user_id, view.movie_id, view.begin_time, view.end_time)
+    kafka.produce_viewed_frame(view.user_id, view.movie_id, view.begin_time, view.end_time)
     return view
+
