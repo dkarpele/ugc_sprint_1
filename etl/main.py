@@ -1,3 +1,5 @@
+from time import sleep
+
 from clickhouse_driver import Client
 from kafka import KafkaConsumer
 
@@ -22,6 +24,7 @@ def etl_clickhouse() -> None:
         clickhouse_loader.get_kafka_data(
             batch_size=settings.batch_size_clickhouse
         )
+        sleep(1)
 
 
 if __name__ == '__main__':

@@ -20,22 +20,24 @@ class ClickHouseLoader:
 
     @backoff(service='ClickHouse')
     def get_kafka_data(self, batch_size: int = 1000) -> None:
-        cash = []
+        cache = []
         for message in self.consumer:
             user_id, movie_id = message.key.decode().split("+")
-            cash.append(ClickHouseModel(
+            cache.append(ClickHouseModel(
                 user_id=user_id,
                 movie_id=movie_id,
                 viewed_frame=message.value.decode()
             ))
-            if len(cash) >= batch_size:
-                self._set_data_in_clickhouse(cash)
-        if cash:
-            self._set_data_in_clickhouse(cash)
+            if len(cache) >= batch_size:
+                self._set_data_in_clickhouse(cache)
+        if cache:
+            self._set_data_in_clickhouse(cache)
 
     @backoff(service='ClickHouse')
-    def _set_data_in_clickhouse(self, cash):
+    def _set_data_in_clickhouse(self, cache):
         query = self.SQL_CREATE_RECORD.format(
-            data=", ".join([f"('{i.user_id}', '{i.movie_id}', {i.viewed_frame})" for i in cash])
+            data=", ".join([f"('{i.user_id}', "
+                            f"'{i.movie_id}', "
+                            f"{i.viewed_frame})" for i in cache])
         )
         self.clickhouse.execute(query)
