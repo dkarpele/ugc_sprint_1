@@ -3,13 +3,14 @@ import uuid
 from contextlib import asynccontextmanager
 
 import uvicorn
-from asgi_correlation_id import CorrelationIdMiddleware
-from asgi_correlation_id.middleware import is_valid_uuid4
+# from asgi_correlation_id import CorrelationIdMiddleware
+# from asgi_correlation_id.middleware import is_valid_uuid4
 from fastapi import FastAPI, Depends, Request, status
 from fastapi.responses import ORJSONResponse
 
 from core.config import settings
 from core.logger import LOGGING
+from users_analyze_api.src.api.v1 import views
 
 
 async def startup():
@@ -36,7 +37,7 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     lifespan=lifespan)
 
-# app.include_router(users.router, prefix='/api/v1/users', tags=['users'])
+app.include_router(views.router, prefix='/api/v1/views', tags=['views'])
 
 if __name__ == '__main__':
     uvicorn.run(

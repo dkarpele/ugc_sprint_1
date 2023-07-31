@@ -1,0 +1,6 @@
+kafka-python==2.0.2
+pydantic[email]==1.9.1
+uvicorn==0.12.2
+python-dotenv==1.0
+fastapi==0.95.2
+orjson==3.8.7
