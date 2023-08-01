@@ -1,4 +1,7 @@
+import logging
+import time
 from clickhouse_driver import Client
+from clickhouse_driver.errors import Error
 from kafka import KafkaConsumer
 
 from models.views import ClickHouseModel
@@ -6,38 +9,54 @@ from services.backoff import backoff
 
 
 class ClickHouseLoader:
-    SQL_CREATE_RECORD = """
-    INSERT INTO user_viewed_frame (user_id, movie_id, viewed_frame) VALUES {data};
-    """
-
-    def __init__(
-            self,
-            consumer: KafkaConsumer,
-            clickhouse: Client
-    ) -> None:
+    def __init__(self, consumer: KafkaConsumer, clickhouse: Client) -> None:
         self.consumer = consumer
         self.clickhouse = clickhouse
+        self.start_time = time.time()
+        self.cache = []
 
-    @backoff(service='ClickHouse')
-    def get_kafka_data(self, batch_size: int = 1000) -> None:
-        cache = []
-        for message in self.consumer:
-            user_id, movie_id = message.key.decode().split("+")
-            cache.append(ClickHouseModel(
+    @backoff(service='Kafka')
+    def get_data(self, chunk_size: int = 1000) -> None:
+        for msg in self.consumer:
+            user_id, film_id = msg.key.decode("utf-8").split("%")
+            begin_time, end_time = msg.value.decode("utf-8").split("%")
+
+            self.cache.append(ClickHouseModel(
                 user_id=user_id,
-                movie_id=movie_id,
-                viewed_frame=message.value.decode()
+                film_id=film_id,
+                begin_time=begin_time,
+                end_time=end_time
             ))
-            if len(cache) >= batch_size:
-                self._set_data_in_clickhouse(cache)
-        if cache:
-            self._set_data_in_clickhouse(cache)
+
+            if time.time() > self.start_time + 5:
+                logging.info(f'{len(self.cache)} messages arrived to broker:\n'
+                             f'{self.cache}')
+                self._set_data_in_clickhouse(self.cache)
+                self.cache = []
+                self.start_time = time.time()
+            if len(self.cache) >= chunk_size:
+                logging.info(f'{len(self.cache)} messages arrived to broker:\n'
+                             f'{self.cache}')
+                self._set_data_in_clickhouse(self.cache)
+                self.cache = []
+                self.start_time = time.time()
 
     @backoff(service='ClickHouse')
     def _set_data_in_clickhouse(self, cache):
-        query = self.SQL_CREATE_RECORD.format(
+        insert_record = """
+        INSERT INTO user_viewed_frame (user_id, film_id, begin_time, end_time) 
+        VALUES {data};
+        """
+        query = insert_record.format(
             data=", ".join([f"('{i.user_id}', "
-                            f"'{i.movie_id}', "
-                            f"{i.viewed_frame})" for i in cache])
+                            f"'{i.film_id}', "
+                            f"parseDateTimeBestEffort('{i.begin_time}'), "
+                            f"parseDateTimeBestEffort('{i.end_time}'))"
+                            for i in cache])
         )
-        self.clickhouse.execute(query)
+
+        try:
+            self.clickhouse.execute(query)
+            logging.info(f"Inserting to clickhouse...\n{query}")
+        except Error as err:
+            logging.error(err)

@@ -1,13 +1,23 @@
+import os
+from logging import config as logging_config
 from pydantic import BaseSettings, Field
+from dotenv import load_dotenv
+
+from core.logger import LOGGING
+
+# Применяем настройки логирования
+logging_config.dictConfig(LOGGING)
+load_dotenv()
 
 
-class Settings(BaseSettings):
-    redis_host: str = Field(..., env='REDIS_HOST')
-    redis_port: int = Field(..., env='REDIS_PORT')
-    kafka_bootstrap_server: list = Field(..., env='KAFKA_BOOTSTRAP_SERVERS')
-    topic: str = Field(..., env='TOPIC')
-    group_id_clickhouse: str = Field(..., env='GROUP_ID_CLICKHOUSE')
-    batch_size_clickhouse: int = Field(..., env='BATCH_SIZE_CLICKHOUSE')
+class MainConf(BaseSettings):
+    class Config:
+        env_file = '.env'
+        env_file_encoding = 'utf-8'
+
+
+class Settings(MainConf):
+    chunk_size_clickhouse: int = Field(..., env='CHUNK_SIZE_CLICKHOUSE')
     timeout_clickhouse: int = Field(..., env='TIMEOUT_CLICKHOUSE')
     clickhouse_server: str = Field(..., env='CLICKHOUSE_SERVER')
 
@@ -16,3 +26,14 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+class KafkaCreds(MainConf):
+    user: str = Field(..., env="KAFKA_USER")
+    password: str = Field(..., env="KAFKA_PASSWORD")
+    topic: str = Field(..., env='TOPIC')
+    bootstrap_servers: list = os.environ.get('KAFKA_SERVERS').split()
+    ssl_cafile: str = Field(..., env='KAFKA_CAFILE')
+
+
+kafka_settings = KafkaCreds()

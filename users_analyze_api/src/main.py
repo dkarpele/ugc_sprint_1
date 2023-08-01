@@ -10,7 +10,7 @@ from fastapi.responses import ORJSONResponse
 
 from core.config import settings
 from core.logger import LOGGING
-from users_analyze_api.src.api.v1 import views
+from api.v1 import views
 
 
 async def startup():

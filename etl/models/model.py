@@ -12,4 +12,3 @@ class Model(BaseModel):
         # Заменяем стандартную работу с json на более быструю
         json_loads = orjson.loads
         json_dumps = orjson_dumps
-        allow_population_by_field_name = True

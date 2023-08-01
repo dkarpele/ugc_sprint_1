@@ -3,7 +3,7 @@ from logging import config as logging_config
 from pydantic import BaseSettings, Field
 from dotenv import load_dotenv
 
-from users_analyze_api.src.core.logger import LOGGING
+from core.logger import LOGGING
 
 # Применяем настройки логирования
 logging_config.dictConfig(LOGGING)
@@ -28,6 +28,7 @@ settings = Settings()
 class KafkaCreds(MainConf):
     user: str = Field(..., env="KAFKA_USER")
     password: str = Field(..., env="KAFKA_PASSWORD")
+    topic: str = Field(..., env='TOPIC')
     bootstrap_servers: list = os.environ.get('KAFKA_SERVERS').split()
     ssl_cafile: str = Field(..., env='KAFKA_CAFILE')
 

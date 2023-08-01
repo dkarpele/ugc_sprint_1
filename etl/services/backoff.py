@@ -1,7 +1,6 @@
 import logging
 from functools import wraps
 from time import sleep
-from redis.exceptions import ConnectionError
 
 
 class BackoffError(Exception):
@@ -26,12 +25,12 @@ def backoff(service, start_sleep_time=0.1, factor=2, border_sleep_time=10):
 
     def func_wrapper(func):
         @wraps(func)
-        async def inner(*args, **kwargs):
+        def inner(*args, **kwargs):
             new_factor = factor
             while True:
                 try:
-                    await func(*args, **kwargs)
-                    logging.info(f"Подключение к {service} прошло успешно")
+                    func(*args, **kwargs)
+                    # logging.info(f"Подключение к {service} прошло успешно")
                     break
                 except (BackoffError, ConnectionError):
                     logging.error(f'Подключение к {service} не установлено')

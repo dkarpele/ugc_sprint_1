@@ -1,8 +1,12 @@
-from models.model import Model
 import uuid
+
+from datetime import datetime
+
+from models.model import Model
 
 
 class ClickHouseModel(Model):
     user_id: uuid.UUID
-    movie_id: uuid.UUID
-    viewed_frame: int
+    film_id: uuid.UUID
+    begin_time: datetime
+    end_time: datetime

@@ -24,4 +24,4 @@ class Kafka:
 
 
 async def get_kafka():
-    yield Kafka('views')
+    yield Kafka(kafka_settings.topic)

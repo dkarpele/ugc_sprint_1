@@ -10,6 +10,15 @@ services:
       clickhouse-node1:
         condition: service_healthy
 
+  users_analyze_api:
+    build: ./users_analyze_api/src/
+    env_file:
+      - .env
+    networks:
+      - ugc
+    expose:
+      - "8000"
+
   zookeeper-ch:
     image: zookeeper:3.5
     container_name: zookeeper-ch
