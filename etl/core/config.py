@@ -17,9 +17,12 @@ class MainConf(BaseSettings):
 
 
 class Settings(MainConf):
-    project_name: str = Field(..., env='PROJECT_NAME')
-    host: str = Field(..., env='HOST_USERS_ANALYZE')
-    port: int = Field(..., env='PORT_USERS_ANALYZE')
+    chunk_size_clickhouse: int = Field(..., env='CHUNK_SIZE_CLICKHOUSE')
+    timeout_clickhouse: int = Field(..., env='TIMEOUT_CLICKHOUSE')
+    clickhouse_server: str = Field(..., env='CLICKHOUSE_SERVER')
+
+    class Config:
+        env_file = '.env'
 
 
 settings = Settings()

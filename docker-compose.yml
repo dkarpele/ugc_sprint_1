@@ -1,5 +1,24 @@
 version: '3'
 services:
+  etl:
+    build: ./etl/
+    env_file:
+      - .env
+    networks:
+      - ugc
+    depends_on:
+      clickhouse-node1:
+        condition: service_healthy
+
+  users_analyze_api:
+    build: ./users_analyze_api/src/
+    env_file:
+      - .env
+    networks:
+      - ugc
+    expose:
+      - "8000"
+
   zookeeper-ch:
     image: zookeeper:3.5
     container_name: zookeeper-ch
@@ -22,6 +41,11 @@ services:
       - ugc
     depends_on:
       - zookeeper-ch
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:8123' ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   clickhouse-node2:
     image: yandex/clickhouse-server:latest

@@ -1,3 +1,3 @@
-vertica_python
-fake
-docker
+vertica_python==1.3.2
+fake==0.8
+docker==6.1.3
