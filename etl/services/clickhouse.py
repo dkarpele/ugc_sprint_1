@@ -31,18 +31,18 @@ class ClickHouseLoader:
             if time.time() > self.start_time + 5:
                 logging.info(f'{len(self.cache)} messages arrived to broker:\n'
                              f'{self.cache}')
-                self._set_data_in_clickhouse(self.cache)
+                self.write_to_clickhouse(self.cache)
                 self.cache = []
                 self.start_time = time.time()
             if len(self.cache) >= chunk_size:
                 logging.info(f'{len(self.cache)} messages arrived to broker:\n'
                              f'{self.cache}')
-                self._set_data_in_clickhouse(self.cache)
+                self.write_to_clickhouse(self.cache)
                 self.cache = []
                 self.start_time = time.time()
 
     @backoff(service='ClickHouse')
-    def _set_data_in_clickhouse(self, cache):
+    def write_to_clickhouse(self, cache):
         insert_record = """
         INSERT INTO user_viewed_frame (user_id, film_id, begin_time, end_time) 
         VALUES {data};
