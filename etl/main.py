@@ -14,7 +14,7 @@ def etl_clickhouse() -> None:
             kafka_settings.topic,
             bootstrap_servers=kafka_settings.bootstrap_servers,
             # auto_offset_reset='earliest',
-            enable_auto_commit=False,
+            # enable_auto_commit=False,
             security_protocol="SASL_SSL",
             sasl_mechanism="SCRAM-SHA-512",
             sasl_plain_username=kafka_settings.user,
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     client = Client(host=settings.clickhouse_server)
     try:
         client.execute(
-        """
+            """
         CREATE TABLE IF NOT EXISTS user_viewed_frame
         (
             user_id UUID,

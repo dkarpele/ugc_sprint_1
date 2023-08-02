@@ -1,16 +1,13 @@
 import logging
-import uuid
 from contextlib import asynccontextmanager
 
 import uvicorn
-# from asgi_correlation_id import CorrelationIdMiddleware
-# from asgi_correlation_id.middleware import is_valid_uuid4
-from fastapi import FastAPI, Depends, Request, status
+from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
+from api.v1 import views
 from core.config import settings
 from core.logger import LOGGING
-from api.v1 import views
 
 
 async def startup():

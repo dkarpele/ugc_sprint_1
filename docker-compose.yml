@@ -7,6 +7,8 @@ services:
     networks:
       - ugc
     depends_on:
+      users_analyze_api:
+        condition: service_healthy
       clickhouse-node1:
         condition: service_healthy
 
@@ -18,6 +20,11 @@ services:
       - ugc
     expose:
       - "8000"
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:8000' ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   zookeeper-ch:
     image: zookeeper:3.5
