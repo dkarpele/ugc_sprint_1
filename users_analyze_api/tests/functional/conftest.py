@@ -3,7 +3,7 @@ import asyncio
 
 import pytest_asyncio
 
-pytest_plugins = ("tests.functional.fixtures.get_data")
+pytest_plugins = "tests.functional.fixtures.get_data"
 
 
 @pytest_asyncio.fixture(scope="session")

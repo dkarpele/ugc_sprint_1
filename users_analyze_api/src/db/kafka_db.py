@@ -1,6 +1,7 @@
-from ssl import SSLContext
+from datetime import datetime
 
 from aiokafka import AIOKafkaProducer
+from ssl import SSLContext
 
 from core.config import kafka_settings
 
@@ -19,7 +20,11 @@ class Kafka:
             ssl_context=context
         )
 
-    async def produce_viewed_frame(self, user_id: str, movie_id: str, begin_time, end_time):
+    async def produce_viewed_frame(self,
+                                   user_id: str,
+                                   movie_id: str,
+                                   begin_time: datetime,
+                                   end_time: datetime):
         await self.producer.start()
         try:
             await self.producer.send_and_wait(

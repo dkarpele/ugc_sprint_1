@@ -2,24 +2,29 @@ version: '3'
 services:
   etl:
     build: ./etl/
+    privileged: true
     env_file:
       - .env
     networks:
-      - ugc
+      - backend
+    volumes:
+      - /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt:${APP_HOME}/YandexInternalRootCA.crt:rw
     depends_on:
-      users_analyze_api:
-        condition: service_healthy
-      clickhouse-node1:
-        condition: service_healthy
+      - users_analyze_api
+#        condition: service_healthy
+      - clickhouse-node1
+#        condition: service_healthy
 
   users_analyze_api:
     build: ./users_analyze_api/src/
     env_file:
       - .env
     networks:
-      - ugc
+      - backend
     expose:
       - "8000"
+    volumes:
+      - /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt:${APP_HOME}/YandexInternalRootCA.crt:rw
     healthcheck:
       test: [ 'CMD', 'curl', '-f', 'http://localhost:8000' ]
       interval: 5s
@@ -32,7 +37,7 @@ services:
     hostname: zookeeper-ch
     privileged: true
     networks:
-      - ugc
+      - backend
 
   clickhouse-node1:
     image: yandex/clickhouse-server:latest
@@ -45,7 +50,7 @@ services:
     volumes:
       - ./cluster_clickhouse/node1:/etc/clickhouse-server
     networks:
-      - ugc
+      - backend
     depends_on:
       - zookeeper-ch
     healthcheck:
@@ -62,12 +67,12 @@ services:
     volumes:
       - ./cluster_clickhouse/node2:/etc/clickhouse-server
     networks:
-      - ugc
+      - backend
     depends_on:
       - zookeeper-ch
 
 networks:
-  ugc:
+  backend:
 
 volumes:
   cluster_clickhouse:
