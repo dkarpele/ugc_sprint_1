@@ -20,6 +20,8 @@ class Settings(MainConf):
     project_name: str = Field(..., env='PROJECT_NAME')
     host: str = Field(..., env='HOST_USERS_ANALYZE')
     port: int = Field(..., env='PORT_USERS_ANALYZE')
+    host_auth: str = Field(..., env='HOST_AUTH')
+    port_auth: int = Field(..., env='PORT_AUTH')
 
 
 settings = Settings()
