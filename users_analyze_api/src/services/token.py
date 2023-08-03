@@ -38,14 +38,7 @@ async def get_user_id(token: str) -> str:
                                        f'{conf.settings.port_auth}'
                                        f'/api/v1/users/me') as response:
                 detail = await response.json()
-                status_code = response.status
-                if status_code != st.HTTP_200_OK:
-                    raise HTTPException(
-                        status_code=status_code,
-                        detail=detail['detail'],
-                        headers={"WWW-Authenticate": "Bearer"},
-                    )
-                print(detail, response, sep='\n')
+                return detail['id']
     except aiohttp.ServerTimeoutError as err:
         raise HTTPException(status_code=st.HTTP_504_GATEWAY_TIMEOUT,
                             detail=err.strerror)
