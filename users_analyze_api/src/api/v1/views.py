@@ -15,7 +15,7 @@ router = APIRouter()
              description="создание записи о просмотре",
              response_description="user_id, movie_id, begin_time, end_time")
 async def create_view(view: View, kafka: KafkaDep) -> View:
-    kafka.produce_viewed_frame(view.user_id,
+    await kafka.produce_viewed_frame(view.user_id,
                                view.movie_id,
                                view.begin_time,
                                view.end_time)
