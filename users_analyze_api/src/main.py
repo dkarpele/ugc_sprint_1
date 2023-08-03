@@ -10,29 +10,13 @@ from core.config import settings
 from core.logger import LOGGING
 
 
-async def startup():
-    pass
-
-
-async def shutdown():
-    pass
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await startup()
-    yield
-    await shutdown()
-
-
 app = FastAPI(
     title=settings.project_name,
     description="Api to analyze users behaviour",
     version="1.0.0",
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
-    default_response_class=ORJSONResponse,
-    lifespan=lifespan)
+    default_response_class=ORJSONResponse)
 
 app.include_router(views.router, prefix='/api/v1/views', tags=['views'])
 
