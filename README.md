@@ -1,4 +1,4 @@
-# Проектная работа 8 спринта
+# UGC sprint 8
 
 ### Installation
 
